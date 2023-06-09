@@ -13,8 +13,9 @@ MAX_TOKENS = 1600
 BATCH_SIZE=1000
 
 class CollectData():
-    def __init__(self,filepath):
+    def __init__(self,filepath,outputpath):
         self.file=open(filepath,'rb')
+        self.outputpath=outputpath
         self.document=Document(self.file)
 
     def halved_by_delimiter(self,string: str, delimiter: str = "\n") -> list[str, str]:
@@ -111,6 +112,7 @@ class CollectData():
             strings.extend(self.split_strings_from_subsection(section, max_tokens=MAX_TOKENS))
 
         print(f"{len(sections)} Wikipedia sections split into {len(strings)} strings.")
+        print(strings)
         return strings
 
     def getheadingwithparagraph(self):
@@ -132,12 +134,13 @@ class CollectData():
                     if next_para.style.name.startswith('Normal'):
                         next_para_text = next_para.text
                         #res.append({"title":self.title(),"heading":copy.deepcopy(heading),"content":next_para_text,"tokens":self.num_tokens(next_para_text)})
-                        res.append((heading,next_para_text))
+                        res.append((copy.deepcopy(heading),next_para_text))
         return res
 
     def embedchunks(self):
         embeddings = []
         strings=self.splittochunks()
+
         for batch_start in range(0, len(strings), BATCH_SIZE):
             batch_end = batch_start + BATCH_SIZE
             batch = strings[batch_start:batch_end]
@@ -149,14 +152,10 @@ class CollectData():
             embeddings.extend(batch_embeddings)
 
         df = DataFrame({"text": strings, "embedding": embeddings})
-        SAVE_PATH = "data/customembed.csv"
+        SAVE_PATH = self.outputpath
         df.to_csv(SAVE_PATH, index=False)
         return df
 
     def __del__(self):
         self.file.close()
-
-c=CollectData(filepath)
-
-c.embedchunks()
 
