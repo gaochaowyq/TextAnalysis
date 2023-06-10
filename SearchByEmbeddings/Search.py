@@ -6,11 +6,30 @@ import openai
 from setting import OPENAIKEY
 openai.api_key=OPENAIKEY
 EMBEDDING_MODEL = "text-embedding-ada-002"
-embeddings_path = "embeddings/customembed.csv"
+GPT_MODEL ="gpt-3.5-turbo"
+embeddings_path = "embeddings/密云区矿区转型绿色数字产业示范园区可行性研究报告.csv"
 
 df = pd.read_csv(embeddings_path)
 
 df['embedding'] = df['embedding'].apply(ast.literal_eval)
+
+def modifyTextDescribe(basecontent:str,requirement:str)->str:
+    print(basecontent)
+    response = openai.ChatCompletion.create(
+        messages=[
+            {'role': 'system', 'content': 'You are a good writer.'},
+            {'role': 'assistant', 'content': basecontent},
+            {'role': 'user', 'content': requirement},
+        ],
+        model=GPT_MODEL,
+        temperature=0,
+    )
+    print(response)
+    return response["choices"][0]["message"]["content"]
+
+
+
+
 
 
 # search function
@@ -34,7 +53,11 @@ def strings_ranked_by_relatedness(
     strings, relatednesses = zip(*strings_and_relatednesses)
     return strings[:top_n], relatednesses[:top_n]
 
-strings, relatednesses = strings_ranked_by_relatedness("该项目中主要的战损评估是什么", df, top_n=1)
-for string, relatedness in zip(strings, relatednesses):
-    print(f"{relatedness=:.3f}")
-    display(string)
+strings, relatednesses = strings_ranked_by_relatedness("浪潮云信息技术股份公司介绍", df, top_n=1)
+
+
+outstr=strings[0].split("\n\n")[-1]
+
+c=modifyTextDescribe(outstr,"重写为一段企业介绍")
+
+print(c)

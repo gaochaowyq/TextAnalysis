@@ -1,4 +1,4 @@
-from CollectDataFromWord import CollectData
+from CollectDataFromWord import CollectData,CollectHeading
 from os import path
 
 def EmbeddingData(filepath):
@@ -13,4 +13,8 @@ def EmbeddingData(filepath):
     else:
         return True
 
-EmbeddingData('data\城市建筑信息在城市作战中的应用.docx')
+#EmbeddingData('data\密云区矿区转型绿色数字产业示范园区可行性研究报告.docx')
+filepath=r'data\码头项目可行性研究报告.docx'
+
+title=CollectHeading(filepath,"").getheadings()
+print(title)

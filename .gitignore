@@ -1,0 +1,4 @@
+SearchByEmbeddings/data
+SearchByEmbeddings/embeddings
+*.pyc
+.idea
